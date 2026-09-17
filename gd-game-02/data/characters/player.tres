@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/characters/character_definition.gd" id="1"]
+
+[ext_resource type="Resource" path="res://data/life/student_needs.tres" id="2"]
+
+[ext_resource type="Resource" path="res://data/combat/student_stamina.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+display_name = "학생"
+outfit_color = Color(0.31, 0.68, 0.67, 1)
+needs_profile = ExtResource("2")
+stamina_profile = ExtResource("3")

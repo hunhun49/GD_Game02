@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "dialogues": {
+    "seoyun": {
+      "lines": [
+        {
+          "speaker": "서윤 · 반장",
+          "text": "전학생 한별이지? 해솔고에 온 걸 환영해. 나는 반장 서윤이야."
+        },
+        {
+          "speaker": "서윤 · 반장",
+          "text": "본관 출입 등록을 해 줄게. 위쪽 건물의 문을 바라보고 E를 누르면 교실로 들어갈 수 있어."
+        },
+        {
+          "speaker": "서윤 · 반장",
+          "text": "운동장도 자유롭게 둘러봐. 나무 뒤로 걸어갈 수도 있어! 돌아올 곳을 정하고 싶으면 깃발을 조사해 봐."
+        }
+      ],
+      "on_complete": [
+        {
+          "type": "set_flag",
+          "parameters": {
+            "key": "building_access",
+            "value": true
+          }
+        },
+        {
+          "type": "notify",
+          "parameters": {
+            "text": "본관 출입 허가 획득 · 본관 문 앞에서 E를 눌러 들어가세요."
+          }
+        },
+        {
+          "type": "add_affinity",
+          "parameters": {
+            "from": "seoyun",
+            "to": "player",
+            "amount": 5,
+            "once_key": "seoyun_first_greeting_reward"
+          }
+        }
+      ]
+    },
+    "notice": {
+      "lines": [
+        {
+          "speaker": "학교 게시판",
+          "text": "오늘의 안내: 본관에 들어가려면 반장 서윤에게 출입 등록을 받으세요."
+        },
+        {
+          "speaker": "학교 게시판",
+          "text": "WASD 또는 방향키로 이동합니다. 대각선으로도 걸을 수 있어요. NPC나 사물을 바라보고 E를 눌러 보세요."
+        }
+      ]
+    },
+    "locked": {
+      "lines": [
+        {
+          "speaker": "본관 출입 단말기",
+          "text": "아직 출입 등록이 되어 있지 않습니다. 반장 서윤과 대화를 마친 후 다시 시도하세요."
+        }
+      ]
+    },
+    "minjae": {
+      "lines": [
+        {
+          "speaker": "민재 · 방송부",
+          "text": "어서 와! 여긴 2학년 3반이야. 책상 사이를 지나가 보고, 옆에 있는 시간표도 확인해 봐."
+        },
+        {
+          "speaker": "민재 · 방송부",
+          "text": "운동장으로 나가려면 왼쪽 아래 출입문을 이용해. 다시 들어와도 출입 등록은 유지돼. 게임을 종료하면 이번 연습 기록은 초기화돼."
+        }
+      ],
+      "on_complete": [
+        {
+          "type": "add_affinity",
+          "parameters": {
+            "from": "minjae",
+            "to": "player",
+            "amount": 5,
+            "once_key": "minjae_first_greeting_reward"
+          }
+        }
+      ]
+    },
+    "classroom_notice": {
+      "lines": [
+        {
+          "speaker": "교실 시간표",
+          "text": "1교시 국어 · 2교시 수학 · 3교시 체육\n방과 후: 방송부 신입 부원을 모집합니다. 민재에게 말을 걸어 보세요."
+        }
+      ]
+    },
+    "field_notice": {
+      "lines": [
+        {
+          "speaker": "운동장 안내판",
+          "text": "체육 시간 전에는 자유롭게 걸어도 좋아요. 쉬고 싶으면 본관 앞 벤치를 찾아보세요."
+        }
+      ]
+    },
+    "seoyun_friendly": {
+      "lines": [
+        {
+          "speaker": "서윤 · 반장",
+          "text": "한별아, 다시 왔네! 운동장 벤치에서는 30분 쉬고, 간식대와 급수대에서는 허기와 갈증을 줄일 수 있어."
+        },
+        {
+          "speaker": "서윤 · 반장",
+          "text": "쉴 때도 시간은 흘러. 교실 오른쪽 위에는 1시간 낮잠을 잘 수 있는 휴식 침상도 준비되어 있어."
+        }
+      ]
+    },
+    "minjae_friendly": {
+      "lines": [
+        {
+          "speaker": "민재 · 방송부",
+          "text": "이제 좀 익숙해졌어? 피곤하면 오른쪽 위 휴식 침상에서 잠깐 자고 가. 일어나면 게임 시간이 한 시간 지나 있을 거야."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,180 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://scripts/zone.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/world_prop.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/interactable.tscn" id="3"]
+
+[ext_resource type="PackedScene" path="res://scenes/characters/npc.tscn" id="4"]
+[ext_resource type="Resource" path="res://data/characters/minjae.tres" id="5"]
+[ext_resource type="Script" path="res://scripts/interactions/dialogue_interaction.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/interactions/door_interaction.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/interactions/checkpoint_interaction.gd" id="8"]
+
+[ext_resource type="Script" path="res://scripts/interactions/relationship_dialogue_interaction.gd" id="rel"]
+[ext_resource type="Script" path="res://scripts/interactions/rest_interaction.gd" id="rest"]
+[ext_resource type="Script" path="res://scripts/interactions/interaction_component.gd" id="component"]
+
+[sub_resource type="Resource" id="Action_ExitDoor"]
+script = ExtResource("7")
+destination_zone = "courtyard"
+destination_spawn = "FromBuilding"
+
+[sub_resource type="Resource" id="Action_Minjae"]
+script = ExtResource("rel")
+dialogue_id = &"minjae"
+from_id = &"minjae"
+matched_dialogue_id = &"minjae_friendly"
+
+[sub_resource type="Resource" id="Action_Timetable"]
+script = ExtResource("6")
+dialogue_id = &"classroom_notice"
+
+[sub_resource type="Resource" id="Action_Checkpoint"]
+script = ExtResource("8")
+
+[sub_resource type="Resource" id="Action_Rest"]
+script = ExtResource("rest")
+minutes = 60.0
+sleeping = true
+
+[node name="Building" type="Node2D"]
+process_mode = 1
+y_sort_enabled = true
+script = ExtResource("1")
+zone_title = "본관 교실"
+bounds = Vector2(1440, 960)
+indoors = true
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="Entrance" type="Marker2D" parent="Spawns"]
+position = Vector2(180, 845)
+
+[node name="NorthWall" parent="." instance=ExtResource("2")]
+position = Vector2(720.0, 140)
+kind = 0
+footprint = Vector2(1440, 140)
+
+[node name="SouthWall" parent="." instance=ExtResource("2")]
+position = Vector2(720.0, 960)
+kind = 0
+footprint = Vector2(1440, 24)
+
+[node name="WestWall" parent="." instance=ExtResource("2")]
+position = Vector2(12, 960)
+kind = 0
+footprint = Vector2(24, 960)
+
+[node name="EastWall" parent="." instance=ExtResource("2")]
+position = Vector2(1428, 960)
+kind = 0
+footprint = Vector2(24, 960)
+
+[node name="Desk00" parent="." instance=ExtResource("2")]
+position = Vector2(540, 440)
+kind = 1
+footprint = Vector2(100, 48)
+tint = Color(0.71, 0.54, 0.35, 1)
+
+[node name="Desk01" parent="." instance=ExtResource("2")]
+position = Vector2(770, 440)
+kind = 1
+footprint = Vector2(100, 48)
+tint = Color(0.71, 0.54, 0.35, 1)
+
+[node name="Desk02" parent="." instance=ExtResource("2")]
+position = Vector2(1000, 440)
+kind = 1
+footprint = Vector2(100, 48)
+tint = Color(0.71, 0.54, 0.35, 1)
+
+[node name="Desk10" parent="." instance=ExtResource("2")]
+position = Vector2(540, 630)
+kind = 1
+footprint = Vector2(100, 48)
+tint = Color(0.71, 0.54, 0.35, 1)
+
+[node name="Desk11" parent="." instance=ExtResource("2")]
+position = Vector2(770, 630)
+kind = 1
+footprint = Vector2(100, 48)
+tint = Color(0.71, 0.54, 0.35, 1)
+
+[node name="Desk12" parent="." instance=ExtResource("2")]
+position = Vector2(1000, 630)
+kind = 1
+footprint = Vector2(100, 48)
+tint = Color(0.71, 0.54, 0.35, 1)
+
+[node name="TeacherDesk" parent="." instance=ExtResource("2")]
+position = Vector2(720, 280)
+kind = 1
+footprint = Vector2(180, 55)
+tint = Color(0.60, 0.42, 0.27, 1)
+
+[node name="Cabinet" parent="." instance=ExtResource("2")]
+position = Vector2(1270, 340)
+kind = 5
+footprint = Vector2(120, 60)
+tint = Color(0.43, 0.57, 0.61, 1)
+
+[node name="RoomTree" parent="." instance=ExtResource("2")]
+position = Vector2(1270, 810)
+kind = 2
+footprint = Vector2(32, 22)
+tint = Color(0.28, 0.48, 0.33, 1)
+
+[node name="ExitDoor" parent="." instance=ExtResource("3")]
+position = Vector2(180, 925)
+kind = 2
+floor_doorway = true
+
+[node name="Interaction" parent="ExitDoor" index="1"]
+display_name = "운동장"
+action_text = "나가기"
+action = SubResource("Action_ExitDoor")
+
+[node name="Minjae" parent="." instance=ExtResource("4")]
+position = Vector2(320, 385)
+character_id = &"minjae"
+definition = ExtResource("5")
+
+[node name="Interaction" parent="Minjae" index="7"]
+action_text = "대화하기"
+action = SubResource("Action_Minjae")
+
+[node name="Timetable" parent="." instance=ExtResource("3")]
+position = Vector2(410, 355)
+kind = 1
+
+[node name="Interaction" parent="Timetable" index="1"]
+display_name = "교실 시간표"
+action_text = "조사하기"
+action = SubResource("Action_Timetable")
+
+[node name="Checkpoint" parent="." instance=ExtResource("3")]
+position = Vector2(1150, 830)
+kind = 3
+
+[node name="Interaction" parent="Checkpoint" index="1"]
+display_name = "교실 깃발"
+action_text = "체크포인트 등록"
+action = SubResource("Action_Checkpoint")
+
+
+[node name="RestBed" parent="." instance=ExtResource("2")]
+position = Vector2(1120, 240)
+kind = 3
+footprint = Vector2(140, 36)
+tint = Color(0.48, 0.64, 0.67, 1)
+
+[node name="Interaction" type="Node2D" parent="RestBed"]
+script = ExtResource("component")
+display_name = "휴식 침상"
+action_text = "1시간 낮잠 자기"
+action = SubResource("Action_Rest")
+
+[editable path="ExitDoor"]
+[editable path="Minjae"]
+[editable path="Timetable"]
+[editable path="Checkpoint"]

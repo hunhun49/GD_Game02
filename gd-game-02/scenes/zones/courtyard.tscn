@@ -1,0 +1,209 @@
+[gd_scene load_steps=24 format=3]
+
+[ext_resource type="Script" path="res://scripts/zone.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/world_prop.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/interactable.tscn" id="3"]
+
+[ext_resource type="PackedScene" path="res://scenes/characters/npc.tscn" id="4"]
+[ext_resource type="Resource" path="res://data/characters/seoyun.tres" id="5"]
+[ext_resource type="Script" path="res://scripts/interactions/dialogue_interaction.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/interactions/door_interaction.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/interactions/checkpoint_interaction.gd" id="8"]
+
+[ext_resource type="Script" path="res://scripts/interactions/relationship_dialogue_interaction.gd" id="rel"]
+[ext_resource type="Script" path="res://scripts/interactions/rest_interaction.gd" id="rest"]
+[ext_resource type="Script" path="res://scripts/interactions/interaction_component.gd" id="component"]
+
+[ext_resource type="Script" path="res://scripts/interactions/consume_interaction.gd" id="consume"]
+[ext_resource type="Resource" path="res://data/life/snack.tres" id="snack"]
+[ext_resource type="Resource" path="res://data/life/water.tres" id="water"]
+
+[ext_resource type="PackedScene" path="res://scenes/characters/training_dummy.tscn" id="training"]
+
+[sub_resource type="Resource" id="Action_Notice"]
+script = ExtResource("6")
+dialogue_id = &"notice"
+
+[sub_resource type="Resource" id="Action_Seoyun"]
+script = ExtResource("rel")
+dialogue_id = &"seoyun"
+from_id = &"seoyun"
+matched_dialogue_id = &"seoyun_friendly"
+
+[sub_resource type="Resource" id="Action_BuildingDoor"]
+script = ExtResource("7")
+required_flag = &"building_access"
+destination_zone = "building"
+
+[sub_resource type="Resource" id="Action_Checkpoint"]
+script = ExtResource("8")
+
+[sub_resource type="Resource" id="Action_FieldNotice"]
+script = ExtResource("6")
+dialogue_id = &"field_notice"
+
+[sub_resource type="Resource" id="Action_Rest"]
+script = ExtResource("rest")
+minutes = 30.0
+sleeping = false
+
+[sub_resource type="Resource" id="Action_Snack"]
+script = ExtResource("consume")
+item = ExtResource("snack")
+
+[sub_resource type="Resource" id="Action_Water"]
+script = ExtResource("consume")
+item = ExtResource("water")
+
+[node name="Courtyard" type="Node2D"]
+process_mode = 1
+y_sort_enabled = true
+script = ExtResource("1")
+zone_title = "운동장"
+bounds = Vector2(1600, 1000)
+indoors = false
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="Entrance" type="Marker2D" parent="Spawns"]
+position = Vector2(740, 560)
+
+[node name="FromBuilding" type="Marker2D" parent="Spawns"]
+position = Vector2(800, 410)
+
+[node name="NorthWall" parent="." instance=ExtResource("2")]
+position = Vector2(800.0, 30)
+kind = 0
+footprint = Vector2(1600, 30)
+
+[node name="SouthWall" parent="." instance=ExtResource("2")]
+position = Vector2(800.0, 1000)
+kind = 0
+footprint = Vector2(1600, 24)
+
+[node name="WestWall" parent="." instance=ExtResource("2")]
+position = Vector2(12, 1000)
+kind = 0
+footprint = Vector2(24, 1000)
+
+[node name="EastWall" parent="." instance=ExtResource("2")]
+position = Vector2(1588, 1000)
+kind = 0
+footprint = Vector2(24, 1000)
+
+[node name="SchoolBuilding" parent="." instance=ExtResource("2")]
+position = Vector2(800, 350)
+kind = 4
+footprint = Vector2(620, 180)
+
+[node name="WestTree" parent="." instance=ExtResource("2")]
+position = Vector2(320, 650)
+kind = 2
+footprint = Vector2(32, 22)
+tint = Color(0.28, 0.48, 0.33, 1)
+
+[node name="WestTreeNorth" parent="." instance=ExtResource("2")]
+position = Vector2(250, 370)
+kind = 2
+footprint = Vector2(32, 22)
+tint = Color(0.28, 0.48, 0.33, 1)
+
+[node name="EastTree" parent="." instance=ExtResource("2")]
+position = Vector2(1330, 440)
+kind = 2
+footprint = Vector2(32, 22)
+tint = Color(0.28, 0.48, 0.33, 1)
+
+[node name="SouthTree" parent="." instance=ExtResource("2")]
+position = Vector2(540, 840)
+kind = 2
+footprint = Vector2(32, 22)
+tint = Color(0.28, 0.48, 0.33, 1)
+
+[node name="Bench" parent="." instance=ExtResource("2")]
+position = Vector2(1080, 620)
+kind = 3
+footprint = Vector2(150, 36)
+tint = Color(0.67, 0.48, 0.31, 1)
+
+[node name="Notice" parent="." instance=ExtResource("3")]
+position = Vector2(450, 465)
+kind = 1
+
+[node name="Interaction" parent="Notice" index="1"]
+display_name = "학교 게시판"
+action_text = "조사하기"
+action = SubResource("Action_Notice")
+
+[node name="Seoyun" parent="." instance=ExtResource("4")]
+position = Vector2(600, 490)
+character_id = &"seoyun"
+definition = ExtResource("5")
+
+[node name="Interaction" parent="Seoyun" index="7"]
+action_text = "대화하기"
+action = SubResource("Action_Seoyun")
+
+[node name="BuildingDoor" parent="." instance=ExtResource("3")]
+position = Vector2(800, 355)
+kind = 2
+
+[node name="Interaction" parent="BuildingDoor" index="1"]
+display_name = "본관"
+action_text = "들어가기"
+action = SubResource("Action_BuildingDoor")
+
+[node name="Checkpoint" parent="." instance=ExtResource("3")]
+position = Vector2(1030, 500)
+kind = 3
+
+[node name="Interaction" parent="Checkpoint" index="1"]
+display_name = "운동장 깃발"
+action_text = "체크포인트 등록"
+action = SubResource("Action_Checkpoint")
+
+[node name="FieldNotice" parent="." instance=ExtResource("3")]
+position = Vector2(1470, 670)
+kind = 1
+
+[node name="Interaction" parent="FieldNotice" index="1"]
+display_name = "운동장 안내판"
+action_text = "조사하기"
+action = SubResource("Action_FieldNotice")
+
+
+[node name="Interaction" type="Node2D" parent="Bench"]
+script = ExtResource("component")
+display_name = "운동장 벤치"
+action_text = "30분 쉬기"
+action = SubResource("Action_Rest")
+
+[node name="SnackStand" parent="." instance=ExtResource("3")]
+position = Vector2(900, 760)
+kind = 1
+
+[node name="Interaction" parent="SnackStand" index="1"]
+display_name = "간식대"
+action_text = "간식 먹기"
+action = SubResource("Action_Snack")
+
+[node name="WaterStation" parent="." instance=ExtResource("3")]
+position = Vector2(1000, 760)
+kind = 1
+
+[node name="Interaction" parent="WaterStation" index="1"]
+display_name = "급수대"
+action_text = "물 마시기"
+action = SubResource("Action_Water")
+
+[node name="TrainingDummy" parent="." instance=ExtResource("training")]
+position = Vector2(1420, 570)
+
+[editable path="Notice"]
+[editable path="Seoyun"]
+[editable path="BuildingDoor"]
+[editable path="Checkpoint"]
+[editable path="FieldNotice"]
+
+[editable path="SnackStand"]
+[editable path="WaterStation"]

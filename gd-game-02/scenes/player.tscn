@@ -1,0 +1,42 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/characters/character.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/player.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/characters/controllers/player_controller.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/interaction_detector.gd" id="4"]
+[ext_resource type="Resource" path="res://data/characters/player.tres" id="5"]
+
+[ext_resource type="Script" path="res://scripts/combat/combat_component.gd" id="6"]
+[ext_resource type="Resource" path="res://data/combat/player_attack.tres" id="7"]
+[ext_resource type="Script" path="res://scripts/combat/combat_feedback.gd" id="8"]
+
+[node name="Player" instance=ExtResource("1")]
+process_mode = 1
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("2")
+character_id = &"player"
+definition = ExtResource("5")
+
+[node name="Controller" parent="." index="2"]
+script = ExtResource("3")
+
+[node name="InteractionDetector" type="Node" parent="."]
+script = ExtResource("4")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, -48)
+zoom = Vector2(0.9, 0.9)
+limit_left = 0
+limit_top = 0
+limit_right = 1600
+limit_bottom = 1000
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+
+[node name="Combat" type="Node" parent="."]
+script = ExtResource("6")
+attack = ExtResource("7")
+
+[node name="CombatFeedback" type="Node2D" parent="."]
+script = ExtResource("8")

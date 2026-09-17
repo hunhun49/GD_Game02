@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/characters/character.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/characters/controllers/ai_controller.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/interactions/interaction_component.gd" id="3"]
+[sub_resource type="RectangleShape2D" id="Shape"]
+size = Vector2(24, 16)
+
+[node name="NPC" instance=ExtResource("1")]
+
+[node name="CollisionShape2D" parent="." index="0"]
+position = Vector2(0, -8)
+shape = SubResource("Shape")
+
+[node name="Controller" parent="." index="2"]
+script = ExtResource("2")
+
+[node name="Interaction" type="Node2D" parent="."]
+script = ExtResource("3")
+action_text = "대화하기"
