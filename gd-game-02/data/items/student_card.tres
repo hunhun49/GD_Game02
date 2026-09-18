@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_definition.gd" id="Item"]
+[ext_resource type="Texture2D" path="res://assets/items/student_card.svg" id="Icon"]
+
+
+
+[resource]
+script = ExtResource("Item")
+item_id = &"student_card"
+display_name = "학생증"
+description = "해솔고등학교 학생증.\n중요한 물건으로 가방에 보관합니다."
+category = 2
+max_stack = 1
+icon = ExtResource("Icon")

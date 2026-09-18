@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AttackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/attack_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+attack_id = &"training_danger"
+damage_type = 2
+damage = 18.0
+stamina_cost = 0.0
+windup_seconds = 0.75
+active_seconds = 0.06
+recovery_seconds = 0.42
+guard_cancel_seconds = 0.0
+blockable = false
+kind = 2
+reach = 100.0
+arc_degrees = 70.0

@@ -7,4 +7,4 @@ script = ExtResource("1")
 display_name = "훈련 로봇"
 outfit_color = Color(0.88, 0.65, 0.3, 1)
 run_speed = 0.0
-max_health = 100.0
+max_health = 160.0

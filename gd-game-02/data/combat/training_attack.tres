@@ -4,5 +4,10 @@
 
 [resource]
 script = ExtResource("1")
+attack_id = &"training_attack"
+damage_type = 2
 damage = 10.0
 stamina_cost = 0.0
+windup_seconds = 0.38
+recovery_seconds = 0.24
+guard_cancel_seconds = 0.0

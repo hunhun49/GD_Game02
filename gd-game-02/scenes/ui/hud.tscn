@@ -74,7 +74,16 @@ text = "1일차 08:00  |  허기 20  ·  갈증 15  ·  피로 10 / 100"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-text = "체력 100 / 100  ·  스태미나 100 / 100  |  J / 패드 B 공격"
+text = "체력 100 / 100  ·  체간 0 / 100  |  좌클릭 공격 · 우클릭 가드 · Shift 회피 · Q 상쇄"
+
+[node name="Ailments" type="Label" parent="Root/Header/Rows"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(0, 24)
+theme_override_colors/font_color = Color(1, 0.75, 0.65, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 2
 
 [node name="Relationship" type="Label" parent="Root/Header/Rows"]
 unique_name_in_owner = true
@@ -116,3 +125,15 @@ theme_override_colors/font_outline_color = Color(0.09, 0.17, 0.24, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
 text = "패드: 스틱 / 방향 패드 이동 · X 상호작용 · Y 대상 변경 · A 대화 다음    /    R 체크포인트 복귀 · Esc 일시정지"
+
+[node name="CharacterMenuButton" type="Button" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -224.0
+offset_top = 20.0
+offset_right = -24.0
+offset_bottom = 64.0
+theme_override_font_sizes/font_size = 18
+text = "캐릭터 · 가방  [I]"

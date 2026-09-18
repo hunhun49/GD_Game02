@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/characters/character.tscn" id="1"]
 [ext_resource type="Resource" path="res://data/characters/training_dummy.tres" id="2"]
@@ -9,8 +9,23 @@
 [ext_resource type="Script" path="res://scripts/interactions/interaction_component.gd" id="7"]
 [ext_resource type="Script" path="res://scripts/interactions/training_reset_interaction.gd" id="8"]
 
+[ext_resource type="Script" path="res://scripts/combat/guard_component.gd" id="GuardScript"]
+[ext_resource type="Script" path="res://scripts/combat/posture_component.gd" id="PostureScript"]
+
+[ext_resource type="Resource" path="res://data/combat/training_danger.tres" id="DangerAttack"]
+
+[ext_resource type="Resource" path="res://data/combat/training_blue.tres" id="BlueAttack"]
+[ext_resource type="Resource" path="res://data/combat/training_purple.tres" id="PurpleAttack"]
+
+[ext_resource type="Script" path="res://scripts/combat/attack_component.gd" id="AttackScript"]
+
+[ext_resource type="Script" path="res://scripts/combat/attack_hitbox.gd" id="HitboxScript"]
+[ext_resource type="PackedScene" path="res://scenes/combat/hurtbox.tscn" id="HurtboxScene"]
+
 [sub_resource type="Resource" id="Reset"]
 script = ExtResource("8")
+
+
 
 [node name="TrainingDummy" instance=ExtResource("1")]
 character_id = &"training_dummy"
@@ -18,17 +33,39 @@ definition = ExtResource("2")
 
 [node name="Controller" parent="." index="2"]
 script = ExtResource("3")
+danger_attack = ExtResource("DangerAttack")
+blue_attack = ExtResource("BlueAttack")
+purple_attack = ExtResource("PurpleAttack")
 
 [node name="Combat" type="Node" parent="."]
 script = ExtResource("4")
-attack = ExtResource("5")
 team = 2
 target_teams = 1
+finishable = true
 
 [node name="CombatFeedback" type="Node2D" parent="."]
 script = ExtResource("6")
 
 [node name="Interaction" type="Node2D" parent="."]
 script = ExtResource("7")
-action_text = "훈련 대상 회복 (J 공격)"
+action_text = "훈련 초기화 · 좌클릭으로 훈련 시작"
 action = SubResource("Reset")
+
+[node name="Guard" type="Node" parent="."]
+script = ExtResource("GuardScript")
+
+[node name="Posture" type="Node" parent="."]
+script = ExtResource("PostureScript")
+
+[node name="Attack" type="Node" parent="Combat"]
+script = ExtResource("AttackScript")
+default_attack = ExtResource("5")
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("HitboxScript")
+
+[node name="Hurtbox" parent="." instance=ExtResource("HurtboxScene")]

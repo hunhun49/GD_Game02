@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="StatusEffectDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/status/status_effect_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/status/behaviors/status_behavior.gd" id="Behavior"]
+[ext_resource type="Script" path="res://scripts/status/behaviors/periodic_damage_status_behavior.gd" id="Script0"]
+
+[sub_resource type="Resource" id="Effect0"]
+script = ExtResource("Script0")
+interval = 1.0
+amount = 3.0
+damage_type = 4
+
+[resource]
+script = ExtResource("1")
+status_id = &"burn"
+display_name = "화상"
+tags = Array[StringName]([&"burn"])
+duration_seconds = 6.0
+presentation_key = &"burn"
+color = Color(1, 0.5, 0.2, 1)
+behaviors = Array[ExtResource("Behavior")]([SubResource("Effect0")])

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StatusEffectDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/status/status_effect_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/status/behaviors/status_behavior.gd" id="Behavior"]
+[ext_resource type="Script" path="res://scripts/status/behaviors/periodic_heal_status_behavior.gd" id="Script"]
+
+[sub_resource type="Resource" id="Effect"]
+script = ExtResource("Script")
+interval = 1.0
+amount = 5.0
+
+[resource]
+script = ExtResource("1")
+status_id = &"regeneration"
+display_name = "재생"
+tags = Array[StringName]([&"regeneration"])
+duration_seconds = 6.0
+presentation_key = &"regeneration"
+color = Color(0.3, 0.9, 0.6, 1)
+behaviors = Array[ExtResource("Behavior")]([SubResource("Effect")])

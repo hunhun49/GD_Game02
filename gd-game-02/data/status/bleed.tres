@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="StatusEffectDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/status/status_effect_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/status/behaviors/status_behavior.gd" id="Behavior"]
+[ext_resource type="Script" path="res://scripts/status/behaviors/periodic_damage_status_behavior.gd" id="Script0"]
+
+[sub_resource type="Resource" id="Effect0"]
+script = ExtResource("Script0")
+interval = 1.0
+amount = 3.0
+damage_type = 6
+
+[resource]
+script = ExtResource("1")
+status_id = &"bleed"
+display_name = "출혈"
+tags = Array[StringName]([&"bleed"])
+duration_seconds = 6.0
+presentation_key = &"bleed"
+color = Color(0.9, 0.2, 0.3, 1)
+behaviors = Array[ExtResource("Behavior")]([SubResource("Effect0")])

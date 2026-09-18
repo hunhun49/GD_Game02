@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/characters/character.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/characters/movement_component.gd" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/life/needs_component.gd" id="5"]
 [ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="6"]
 [ext_resource type="Script" path="res://scripts/combat/stamina_component.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/status/status_effect_component.gd" id="StatusScript"]
 [sub_resource type="CircleShape2D" id="Shape"]
 radius = 10.0
 
@@ -36,3 +37,6 @@ script = ExtResource("6")
 
 [node name="Stamina" type="Node" parent="."]
 script = ExtResource("7")
+
+[node name="StatusEffects" type="Node" parent="."]
+script = ExtResource("StatusScript")

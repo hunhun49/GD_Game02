@@ -48,8 +48,8 @@ func take_damage(event: DamageEvent) -> float:
 	_dispatching = false
 	return applied
 
-func heal(amount: float) -> float:
-	if _dispatching or not _available() or current() <= 0 or not is_finite(amount) or amount <= 0:
+func heal(amount: float, allow_paused: bool = false) -> float:
+	if _dispatching or not _available(allow_paused) or current() <= 0 or not is_finite(amount) or amount <= 0:
 		return 0.0
 	var applied := minf(maximum() - current(), amount)
 	if applied <= 0:
@@ -80,5 +80,5 @@ func acquire_invulnerability() -> int:
 func release_invulnerability(token: int) -> void:
 	_invulnerability.erase(token)
 
-func _available() -> bool:
-	return is_instance_valid(_actor) and _actor.state != null and is_inside_tree() and can_process() and not is_queued_for_deletion() and not _actor.is_queued_for_deletion()
+func _available(allow_paused: bool = false) -> bool:
+	return is_instance_valid(_actor) and _actor.state != null and is_inside_tree() and (can_process() or (allow_paused and get_tree().paused)) and not is_queued_for_deletion() and not _actor.is_queued_for_deletion()

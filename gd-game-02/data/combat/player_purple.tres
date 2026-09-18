@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AttackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/attack_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+attack_id = &"player_purple"
+damage_type = 2
+stamina_cost = 0.0
+kind = 3
+damage = 18.0
+windup_seconds = 0.22
+active_seconds = 0.14
+recovery_seconds = 0.38
+clash_recovery_seconds = 0.08

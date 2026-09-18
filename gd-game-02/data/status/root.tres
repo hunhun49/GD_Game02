@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="StatusEffectDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/status/status_effect_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/status/behaviors/status_behavior.gd" id="Behavior"]
+[ext_resource type="Script" path="res://scripts/status/behaviors/action_lock_status_behavior.gd" id="Script0"]
+
+[sub_resource type="Resource" id="Effect0"]
+script = ExtResource("Script0")
+blocked_actions = 65
+
+[resource]
+script = ExtResource("1")
+status_id = &"root"
+display_name = "속박"
+tags = Array[StringName]([&"root"])
+duration_seconds = 3.0
+presentation_key = &"root"
+color = Color(0.6, 0.45, 0.25, 1)
+behaviors = Array[ExtResource("Behavior")]([SubResource("Effect0")])

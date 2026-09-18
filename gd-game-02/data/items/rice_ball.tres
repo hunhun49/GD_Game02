@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_definition.gd" id="Item"]
+[ext_resource type="Texture2D" path="res://assets/items/rice_ball.svg" id="Icon"]
+[ext_resource type="Script" path="res://scripts/items/effects/restore_needs_item_effect.gd" id="EffectScript"]
+[ext_resource type="Script" path="res://scripts/life/consumable_definition.gd" id="NutritionScript"]
+
+[sub_resource type="Resource" id="Nutrition"]
+script = ExtResource("NutritionScript")
+display_name = "삼각김밥"
+hunger_relief = 25.0
+
+[sub_resource type="Resource" id="Effect"]
+script = ExtResource("EffectScript")
+nutrition = SubResource("Nutrition")
+
+[resource]
+script = ExtResource("Item")
+item_id = &"rice_ball"
+display_name = "삼각김밥"
+description = "허기를 25 낮춥니다.\n수업 사이에 간단히 먹을 수 있는 간식."
+category = 0
+max_stack = 10
+icon = ExtResource("Icon")
+use_effect = SubResource("Effect")

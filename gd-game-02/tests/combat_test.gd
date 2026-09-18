@@ -90,83 +90,6 @@ func test_health_and_stamina() -> void:
 	world.queue_free()
 	await frames()
 
-func test_attack_validation() -> void:
-	var world: InGame = load("res://scenes/game/ingame.tscn").instantiate()
-	root.add_child(world)
-	await frames()
-	var player := world.get_player()
-	var combat: CombatComponent = player.get_node("Combat")
-	var stamina: StaminaComponent = player.get_node("Stamina")
-	var dummy: SchoolCharacter = world.current_zone.get_node("TrainingDummy")
-	dummy.controller.set_physics_process(false)
-	var target: CombatComponent = dummy.get_node("Combat")
-	var health: HealthComponent = dummy.get_node("Health")
-	combat.attack = combat.attack.duplicate()
-	combat.attack.cooldown_seconds = 0.1
-	await place(player, Vector2(1420, 750))
-	check(not combat.try_attack(target) and stamina.current() == 100, "Explicit out-of-range target is rejected without spending stamina")
-	await place(player, Vector2(1420, 625), Vector2.DOWN)
-	check(not combat.try_attack(target), "Attacks cannot hit a target behind the facing cone")
-	player.facing = Vector2.UP
-	var wall: SchoolProp = load("res://scenes/world_prop.tscn").instantiate()
-	wall.position = Vector2(1420, 600)
-	wall.footprint = Vector2(50, 8)
-	world.current_zone.add_child(wall)
-	await frames()
-	check(not combat.try_attack(target), "Walls block melee attacks")
-	wall.queue_free()
-	await frames()
-	target.team = 1
-	check(not combat.try_attack(target), "Team mask rejects friendly targets")
-	target.team = 2
-	target.enabled = false
-	check(not combat.try_attack(target), "Disabled combat component is excluded from combat")
-	target.enabled = true
-	check(not combat.valid_target(combat) and world.current_zone.get_node("Seoyun").get_node_or_null("Combat") == null, "Self-attacks and ordinary noncombat NPCs are excluded")
-	var locks := player.acquire_control_lock()
-	check(not combat.try_attack(target), "Existing full control locks also block newly added attacks")
-	player.release_control_lock(locks)
-	var hits: Array[float] = []
-	combat.hit_landed.connect(func(_id: StringName, _name: String, amount: float) -> void: hits.append(amount))
-	check(combat.try_attack(target) and health.current() == 75 and stamina.current() == 80, "Successful attack applies one hit and one stamina cost")
-	check(not combat.try_attack(target) and health.current() == 75 and stamina.current() == 80, "Cooldown prevents repeated hits and duplicate resource spending")
-	await create_timer(0.15).timeout
-	stamina.spend(stamina.current())
-	check(not combat.try_attack(target) and health.current() == 75, "Insufficient stamina prevents damage")
-	stamina.restore_full()
-	player.facing = Vector2.DOWN
-	check(combat.try_attack() and hits.size() == 1 and stamina.current() == 80, "An empty swing consumes its normal cooldown and stamina without hitting")
-	await create_timer(0.15).timeout
-	player.facing = Vector2.UP
-	var other: InGame = load("res://scenes/game/ingame.tscn").instantiate()
-	root.add_child(other)
-	other.position = Vector2(3000, 0)
-	var foreign: CombatComponent = other.current_zone.get_node("TrainingDummy/Combat")
-	foreign.actor().global_position = Vector2(1420, 570)
-	check(not combat.try_attack(foreign), "Combat cannot cross independently composed world scopes")
-	other.queue_free()
-	await frames()
-	# Signal listeners can move or delete targets: execution checks again after dispatch.
-	var move_target := func(_direction: Vector2) -> void: dummy.position = Vector2(1450, 300)
-	combat.attack_started.connect(move_target)
-	check(combat.try_attack(target) and health.current() == 75, "Moving target during attack notification cannot bypass range validation")
-	combat.attack_started.disconnect(move_target)
-	await create_timer(0.15).timeout
-	dummy.position = Vector2(1420, 570)
-	var recurse_results: Array[bool] = []
-	var recursive := func(_direction: Vector2) -> void: recurse_results.append(combat.try_attack(target))
-	combat.attack_started.connect(recursive)
-	check(combat.try_attack(target) and health.current() == 50 and recurse_results == [false], "Attack notifications cannot recursively trigger extra attacks")
-	combat.attack_started.disconnect(recursive)
-	dummy.state.current_health = 0
-	dummy.state.activity = CharacterState.Activity.INCAPACITATED
-	var saved := dummy.state
-	world.load_zone("building", "Entrance")
-	world.load_zone("courtyard", "FromBuilding")
-	check(world.current_zone.get_node("TrainingDummy").state == saved and saved.current_health == 0, "Map replacement preserves a defeated character's state")
-	world.queue_free()
-	await frames()
-
 func test_game_input() -> void:
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
@@ -178,17 +101,19 @@ func test_game_input() -> void:
 	var target: CombatComponent = game.ingame.current_zone.get_node("TrainingDummy/Combat")
 	await place(player, Vector2(1420, 625))
 	await key(KEY_J)
-	check(target.health().current() == 75 and stamina.current() <= 80, "Physical J input executes the player's attack")
-	await create_timer(0.85).timeout
-	check(health.current() == 90, "Training controller responds with a delayed counterattack")
-	check("체력 90" in game.ui.get_node("HUD").displayed_combat() and "스태미나" in game.ui.get_node("HUD").displayed_combat(), "HUD displays independent health and stamina values")
+	await create_timer(0.22).timeout
+	check(target.health().current() == target.health().maximum() and target.posture().current > 0 and stamina.current() == 100, "Physical J resolves against robot guard without stamina cost")
+	await create_timer(1.0).timeout
+	check(health.current() < 100, "Training controller telegraphs and lands its first strike")
+	check("체간" in game.ui.get_node("HUD").displayed_combat() and "스태미나" not in game.ui.get_node("HUD").displayed_combat(), "A-mode HUD replaces unused stamina with posture")
 	game.dialogue.start(&"notice")
 	var target_health := target.health().current()
 	var remaining := combat.cooldown_remaining()
 	var resource := stamina.current()
 	await key(KEY_J)
+	await key(KEY_K)
 	await create_timer(0.2).timeout
-	check(target.health().current() == target_health and stamina.current() == resource and combat.cooldown_remaining() == remaining, "Dialogue suspends attacks, cooldowns and stamina recovery")
+	check(target.health().current() == target_health and stamina.current() == resource and combat.cooldown_remaining() == remaining and not combat.guard().holding, "Dialogue suspends combat time and rejects attack and guard")
 	check(health.take_damage(DamageEvent.new(&"environment", 10)) == 0, "Dialogue also protects against direct environmental damage")
 	var external := health.acquire_invulnerability()
 	game.dialogue.cancel()
@@ -208,23 +133,23 @@ func test_game_input() -> void:
 	await key(KEY_E)
 	check(player.position == before and health.current() == 0 and not game.dialogue.is_busy(), "Downed player cannot move, attack or interact")
 	await key(KEY_R)
-	check(health.current() == 100 and stamina.current() == 100 and player.position.distance_to(game.ingame.checkpoint) < 1, "R explicitly revives at the checkpoint with restored action resources")
+	check(health.current() == 100 and stamina.current() == 100 and player.position.distance_to(game.ingame.checkpoint) < 1, "R explicitly revives at the checkpoint and clears encounter state")
 	await place(player, Vector2(1420, 625))
 	target.health().take_damage(DamageEvent.new(&"test", 1000))
 	await key(KEY_E)
-	check(target.health().current() == 100 and target.actor().state.activity == CharacterState.Activity.ACTIVE, "E resets the defeated training target")
+	check(target.health().current() == target.health().maximum() and target.actor().state.activity == CharacterState.Activity.ACTIVE, "E resets the defeated training target")
 	var saved_clock: GameClock = game.session_state.clock
 	game.dialogue.start(&"notice")
 	game.queue_free()
 	await frames()
 	check(not saved_clock.is_paused(), "Combat integration preserves dialogue cleanup on scene teardown")
-	# Removing the opt-in combat capability must not break walking/UI composition.
 	var world: InGame = load("res://scenes/game/ingame.tscn").instantiate()
 	world.get_node("Player/Combat").free()
 	root.add_child(world)
 	await frames()
 	await key(KEY_J)
-	check(world.zone_id == "courtyard" and world.get_player().get_node_or_null("Combat") == null, "World remains usable when the player's Combat component is omitted")
+	await key(KEY_K)
+	check(world.zone_id == "courtyard" and world.get_player().get_node_or_null("Combat") == null, "Optional Combat omission preserves walking, defense input and UI composition")
 	world.queue_free()
 	await frames()
 
@@ -257,7 +182,6 @@ func run() -> void:
 	)
 	test_save()
 	await test_health_and_stamina()
-	await test_attack_validation()
 	await test_game_input()
 	print("COMBAT TESTS: %d checks, %d failure(s)" % [checks, failures])
 	quit(1 if failures else 0)

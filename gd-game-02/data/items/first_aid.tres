@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_definition.gd" id="Item"]
+[ext_resource type="Texture2D" path="res://assets/items/first_aid.svg" id="Icon"]
+[ext_resource type="Script" path="res://scripts/items/effects/heal_item_effect.gd" id="EffectScript"]
+
+[sub_resource type="Resource" id="Effect"]
+script = ExtResource("EffectScript")
+amount = 30.0
+
+[resource]
+script = ExtResource("Item")
+item_id = &"first_aid"
+display_name = "구급 상자"
+description = "체력을 30 회복합니다.\n전투 불능 상태에서는 사용할 수 없습니다."
+category = 1
+max_stack = 5
+icon = ExtResource("Icon")
+use_effect = SubResource("Effect")

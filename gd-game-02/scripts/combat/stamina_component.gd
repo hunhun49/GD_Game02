@@ -50,7 +50,7 @@ func restore_full() -> bool:
 	return true
 
 func _physics_process(delta: float) -> void:
-	if not is_enabled() or not _actor.can_act(SchoolCharacter.Action.ATTACK):
+	if not is_enabled() or not _actor.can_act(SchoolCharacter.Action.COMBAT_TICK):
 		return
 	var usable := maxf(0, delta - _recovery_wait)
 	_recovery_wait = maxf(0, _recovery_wait - delta)

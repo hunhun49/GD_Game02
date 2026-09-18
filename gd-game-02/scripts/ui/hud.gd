@@ -1,12 +1,15 @@
 class_name SchoolHUD
 extends CanvasLayer
 
+signal character_menu_requested
+
 @onready var _location: Label = %Location
 @onready var _status: Label = %Status
 @onready var _prompt: Label = %Prompt
 @onready var _combat: Label = %Combat
 var _health_text: String = "체력 100 / 100"
 var _stamina_text: String = "스태미나 100 / 100"
+var _posture_text: String = "체간 0 / 100"
 
 @onready var _life: Label = %Life
 @onready var _relationship: Label = %Relationship
@@ -69,7 +72,21 @@ func show_stamina(current: float, maximum: float) -> void:
 	_refresh_combat()
 
 func _refresh_combat() -> void:
-	_combat.text = _health_text + "  ·  " + _stamina_text + "  |  J / 패드 B 공격"
+	_combat.text = _health_text + "  ·  " + _posture_text + "  |  좌클릭 공격 · 우클릭 가드 · Shift 회피 · Q 상쇄"
 
 func displayed_combat() -> String:
 	return _combat.text
+
+func show_posture(current: float, maximum: float) -> void:
+	_posture_text = "체간 %.0f / %.0f" % [current, maximum]
+	_refresh_combat()
+
+func show_ailments(text: String) -> void:
+	%Ailments.text = "상태 이상  |  " + text if not text.is_empty() else ""
+	%Ailments.visible = not text.is_empty()
+
+func displayed_ailments() -> String:
+	return %Ailments.text
+
+func _ready() -> void:
+	%CharacterMenuButton.pressed.connect(func() -> void: character_menu_requested.emit())

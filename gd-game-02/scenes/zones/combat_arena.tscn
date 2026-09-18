@@ -1,0 +1,61 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/training_arena.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/characters/training_dummy.tscn" id="2"]
+[ext_resource type="Script" path="res://scripts/interactions/training_reset_interaction.gd" id="3"]
+
+[sub_resource type="Resource" id="ResetAll"]
+script = ExtResource("3")
+reset_all_training = true
+
+[node name="CombatArena" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1")
+zone_title = "다수전 훈련장"
+bounds = Vector2(1600, 1000)
+
+[node name="Spawns" type="Node2D" parent="."]
+[node name="Entrance" type="Marker2D" parent="Spawns"]
+position = Vector2(800, 650)
+
+[node name="TrainingDummy" parent="." instance=ExtResource("2")]
+position = Vector2(800, 580)
+
+[node name="Interaction" parent="TrainingDummy"]
+action_text = "훈련 로봇 3명 초기화"
+action = SubResource("ResetAll")
+
+[node name="TrainingLeft" parent="." instance=ExtResource("2")]
+position = Vector2(750, 595)
+character_id = &"training_left"
+
+[node name="Controller" parent="TrainingLeft" index="2"]
+reply_delay = 0.9
+
+[node name="Interaction" parent="TrainingLeft"]
+action_text = "훈련 로봇 3명 초기화"
+action = SubResource("ResetAll")
+
+[node name="TrainingRight" parent="." instance=ExtResource("2")]
+position = Vector2(850, 595)
+character_id = &"training_right"
+
+[node name="Controller" parent="TrainingRight" index="2"]
+reply_delay = 1.1
+
+[node name="Interaction" parent="TrainingRight"]
+action_text = "훈련 로봇 3명 초기화"
+action = SubResource("ResetAll")
+
+[node name="CombatFeedback" parent="TrainingDummy"]
+compact_labels = true
+
+[node name="CombatFeedback" parent="TrainingLeft"]
+compact_labels = true
+
+[node name="CombatFeedback" parent="TrainingRight"]
+compact_labels = true
+
+[editable path="TrainingDummy"]
+[editable path="TrainingLeft"]
+[editable path="TrainingRight"]

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_definition.gd" id="Item"]
+[ext_resource type="Texture2D" path="res://assets/items/bandage.svg" id="Icon"]
+[ext_resource type="Script" path="res://scripts/items/effects/cleanse_item_effect.gd" id="EffectScript"]
+
+[sub_resource type="Resource" id="Effect"]
+script = ExtResource("EffectScript")
+tag = &"bleed"
+
+[resource]
+script = ExtResource("Item")
+item_id = &"bandage"
+display_name = "붕대"
+description = "출혈 상태를 치료합니다.\n체력 회복 효과는 없습니다."
+category = 1
+max_stack = 10
+icon = ExtResource("Icon")
+use_effect = SubResource("Effect")

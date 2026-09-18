@@ -1,6 +1,9 @@
 class_name InGame
 extends Node2D
 
+signal ailments_changed(text: String)
+
+signal posture_changed(current: float, maximum: float)
 signal health_changed(current: float, maximum: float)
 signal stamina_changed(current: float, maximum: float)
 signal clock_changed(text: String)
@@ -13,6 +16,7 @@ signal status_changed(message: String)
 signal dialogue_requested(id: StringName)
 
 const ZONES := {
+	"combat_arena": preload("res://scenes/zones/combat_arena.tscn"),
 	"courtyard": preload("res://scenes/zones/courtyard.tscn"),
 	"building": preload("res://scenes/zones/building.tscn"),
 }
@@ -37,6 +41,7 @@ var _displayed_minute: int = -1
 
 func _ready() -> void:
 	_detector.focus_changed.connect(_on_focus_changed)
+	_player.status_effects().changed.connect(_on_ailments_changed)
 	_player.get_node("Needs").changed.connect(_on_needs_changed)
 	_player.get_node("Health").changed.connect(func(current: float, maximum: float) -> void: health_changed.emit(current, maximum))
 	_player.get_node("Health").incapacitated.connect(_on_player_incapacitated)
@@ -44,11 +49,18 @@ func _ready() -> void:
 	var combat := _player.get_node_or_null("Combat") as CombatComponent
 	if combat != null:
 		combat.hit_landed.connect(_on_player_hit)
+		combat.resolved.connect(_on_player_defense)
+		combat.finished_target.connect(func(target_name: String) -> void: status_changed.emit(target_name + " 제압 성공 · E로 다시 훈련"))
+		if combat.posture() != null:
+			combat.posture().changed.connect(func(current: float, maximum: float) -> void: posture_changed.emit(current, maximum))
 	var input := _player.controller as PlayerController
 	input.interact_requested.connect(_request_interaction)
 	input.cycle_target_requested.connect(_detector.cycle)
 	input.respawn_requested.connect(_request_respawn)
 	input.attack_requested.connect(_request_attack)
+	input.dodge_requested.connect(_request_dodge)
+	input.purple_requested.connect(_request_purple)
+	input.guard_requested.connect(_request_guard)
 	_player.movement.mode_changed.connect(func(count: int) -> void: movement_mode_changed.emit(count))
 	_configure_characters_and_interactions()
 	if auto_start:
@@ -93,12 +105,15 @@ func movement_direction_count() -> int:
 	return 8 if _player.movement.mode == MovementComponent.MovementMode.EIGHT_DIRECTIONS else 4
 
 func can_pause() -> bool:
-	return not transitioning and not _player.has_action_locks()
+	return not transitioning and not _player.has_pause_locks()
 
 func _publish_life_state() -> void:
 	var health: HealthComponent = _player.get_node("Health")
 	var stamina: StaminaComponent = _player.get_node("Stamina")
 	health_changed.emit(health.current(), health.maximum())
+	var combat := _player.get_node_or_null("Combat") as CombatComponent
+	if combat != null and combat.posture() != null:
+		posture_changed.emit(combat.posture().current, combat.posture().maximum)
 	stamina_changed.emit(stamina.current(), stamina.maximum())
 	var minute := int(floor(_session_state.clock.total_minutes()))
 	if minute != _displayed_minute:
@@ -130,6 +145,10 @@ func _request_interaction() -> void:
 		_detector.interact()
 
 func load_zone(next_zone: String, spawn_name: String) -> bool:
+	if _training_active():
+		status_changed.emit("훈련 중에는 구역을 이동할 수 없습니다. R로 훈련을 종료하세요.")
+		_end_transition()
+		return false
 	if not ZONES.has(next_zone):
 		push_error("Unknown zone: " + next_zone)
 		_end_transition()
@@ -162,7 +181,7 @@ func load_zone(next_zone: String, spawn_name: String) -> bool:
 	move_child(current_zone, 0)
 	_detector.set_scope(current_zone)
 	checkpoint = spawn.global_position
-	_player.facing = Vector2.UP if next_zone == "building" else Vector2.DOWN
+	_player.facing = Vector2.UP if next_zone in ["building", "combat_arena"] else Vector2.DOWN
 	var camera: Camera2D = $Player/Camera2D
 	camera.limit_right = int(current_zone.bounds.x)
 	camera.limit_bottom = int(current_zone.bounds.y)
@@ -170,7 +189,9 @@ func load_zone(next_zone: String, spawn_name: String) -> bool:
 	_end_transition()
 	zone_changed.emit(current_zone)
 	location_changed.emit("해솔고등학교  /  " + current_zone.zone_title)
-	if zone_id == "building":
+	if zone_id == "combat_arena":
+		status_changed.emit("3명 동시 훈련 · 좌클릭 공격 · 우클릭 가드 · Shift 돌진 · Q 상쇄 · E 전체 초기화")
+	elif zone_id == "building":
 		status_changed.emit("민재와 대화하고 시간표를 조사해 보세요. 왼쪽 아래 출입문으로 운동장에 돌아갈 수 있습니다.")
 	elif _session_state.has_flag(&"building_access"):
 		status_changed.emit("본관 출입 가능 · 나무 주변과 운동장을 걸으며 대각선 이동을 시험해 보세요.")
@@ -226,18 +247,29 @@ func _register_checkpoint(at: Vector2) -> void:
 	status_changed.emit("체크포인트 등록 완료 · R을 누르면 이곳으로 돌아옵니다.")
 
 func respawn() -> void:
+	_reset_combat()
 	_player.position = checkpoint
 	_player.reset_motion()
 	_detector.clear()
 	$Player/Camera2D.reset_smoothing()
 
+func _request_dodge() -> void:
+	var combat := _player.get_node_or_null("Combat") as CombatComponent
+	if not transitioning and combat != null:
+		combat.request_dodge()
+
+func _request_purple() -> void:
+	var combat := _player.get_node_or_null("Combat") as CombatComponent
+	if not transitioning and combat != null:
+		combat.request_purple()
+
 func _request_attack() -> void:
 	var combat := _player.get_node_or_null("Combat") as CombatComponent
 	if not transitioning and combat != null:
-		combat.try_attack()
+		combat.request_attack()
 
 func _on_player_hit(_id: StringName, target_name: String, amount: float) -> void:
-	status_changed.emit("%s에게 %.0f 피해 · J 공격 / E 훈련 대상 회복" % [target_name, amount])
+	status_changed.emit("%s에게 %.0f 피해 · 우클릭 가드 / 붕괴 시 좌클릭 제압" % [target_name, amount])
 
 func _on_player_incapacitated() -> void:
 	_detector.clear()
@@ -255,3 +287,58 @@ func _request_respawn() -> void:
 	elif not _player.can_act(SchoolCharacter.Action.MOVE):
 		return
 	respawn()
+
+func _request_guard(pressed: bool, allow_deflect: bool) -> void:
+	var combat := _player.get_node_or_null("Combat") as CombatComponent
+	if not transitioning and combat != null:
+		if pressed and not allow_deflect:
+			if combat.phase == CombatComponent.Phase.READY:
+				combat.set_guard(true, false)
+		else:
+			combat.request_guard(pressed)
+
+func _on_player_defense(outcome: HitResolver.Outcome) -> void:
+	if outcome == HitResolver.Outcome.DEFLECT:
+		status_changed.emit("튕겨내기 성공 · 상대 체간 증가! 연속기의 다음 공격을 확인하세요.")
+	elif outcome == HitResolver.Outcome.BLOCK:
+		status_changed.emit("가드 · 내 체간 부담 증가. 맞기 직전에 우클릭을 새로 누르면 튕겨냅니다.")
+
+	elif outcome == HitResolver.Outcome.DASH_PARRY:
+		status_changed.emit("돌진 패링! 상대 체간 증가 · 좌클릭으로 공격을 이어가세요.")
+	elif outcome == HitResolver.Outcome.CLASH:
+		status_changed.emit("보라색 상쇄! 피해 없이 충돌 · 먼저 회복해 공격을 이어갑니다.")
+	elif outcome == HitResolver.Outcome.DODGE:
+		status_changed.emit("회피 성공 · 커서를 적에게 돌려 공격을 이어가세요.")
+
+func _training_active() -> bool:
+	if not is_instance_valid(current_zone):
+		return false
+	for node in current_zone.find_children("*", "Node", true, false):
+		if node is TrainingController and node.is_training():
+			return true
+	return false
+
+func _reset_combat() -> void:
+	$CombatResolver.clear()
+	if _player.status_effects() != null:
+		_player.status_effects().clear()
+	var combat := _player.get_node_or_null("Combat") as CombatComponent
+	if combat != null:
+		combat.reset_encounter()
+	if is_instance_valid(current_zone):
+		for node in current_zone.find_children("*", "Node", true, false):
+			if node is TrainingController:
+				var effects := (node.get_parent() as SchoolCharacter).status_effects()
+				if effects != null:
+					effects.clear()
+				node.reset_training()
+
+func _on_ailments_changed(statuses: Array[Dictionary]) -> void:
+	var labels := PackedStringArray()
+	for status in statuses:
+		var stack_text := " ×%d" % status.stacks if status.get("stacks", 1) > 1 else ""
+		labels.append("%s%s %.1fs" % [status.name, stack_text, status.remaining])
+	var rows := PackedStringArray()
+	for start in range(0, labels.size(), 5):
+		rows.append("  ·  ".join(labels.slice(start, start + 5)))
+	ailments_changed.emit("\n".join(rows))

@@ -5,6 +5,7 @@
 ```text
 Main (Node)
 ├── InGame (독립 씬, Node2D)
+│   ├── CombatResolver (현재 구역의 타격 수집·판정)
 │   ├── CurrentZone (실행 중 교체)
 │   │   ├── 배경·충돌·가구
 │   │   └── NPC·문·게시판·체크포인트
@@ -124,4 +125,12 @@ godot --headless --path gd-game-02 --script res://tests/systems_test.gd
 
 관계 변화와 시간·신체 상태 흐름은 [관계·생활 시스템 가이드](relationship-life-system.md)를 참고하세요. 게임 시계는 InGame이 구동하고, 대화와 메뉴는 각각 시계 잠금 토큰을 보관합니다.
 
-플레이어와 훈련 로봇에는 선택적 Combat·CombatFeedback을 추가했습니다. 체력·스태미나도 인게임의 값 시그널을 연결부를 거쳐 HUD에 전달합니다. [전투 기반 가이드](combat-system.md)에서 책임과 확장 위치를 확인할 수 있습니다.
+플레이어와 훈련 로봇에는 선택적 Combat·CombatFeedback을 추가했습니다. Combat 아래 Attack이 공격 실행 상태를 소유하며, 플레이어의 선택적 Skills가 스킬 슬롯·쿨다운을 관리합니다. AttackHitbox와 Hurtbox로 접촉을 수집하고, InGame의 CombatResolver가 프레임 단위로 타격을 모읍니다. 피격 측 Combat이 검증한 요청은 공통 DamageResolver로 계산합니다. [공격·스킬·피해 확장 가이드](attack-skill-damage.md)를 참고하세요. 현재 전투 A안에서는 Guard·Posture도 선택적으로 붙이고 체력·체간 값 시그널을 연결부를 거쳐 HUD에 전달합니다. 스태미나 연동은 저장 호환을 위해 유지하되 표시하지 않습니다. [체간 공방 가이드](duel-prototype.md)에서 책임과 확장 위치를 확인할 수 있습니다.
+
+## 상태 효과 구성
+
+공통 캐릭터의 `StatusEffects`는 상태의 수명과 등록을 관리합니다. 효과 실행은 `StatusBehavior`와 `StatusEffectRunner`, 중복 적용은 `StatusReapplyPolicy`, 능력치 집계는 `StatusModifiers`, 캐릭터·전투 연동은 `StatusCharacterBridge`로 분리합니다. 일반 공격과 스킬의 중단도 실행 중인 행동 종류를 기준으로 구분합니다. 자세한 조합·확장 규칙은 [상태 이상 시스템](status-effects.md)을 참고하세요.
+
+## 캐릭터 메뉴와 아이템
+
+`GameUI/CharacterMenu`의 상단 세 탭은 상태·인벤토리·스킬을 표시합니다. `GameCoordinator`가 일시정지 소유권을 관리하고 `CharacterMenuPresenter`가 세션·캐릭터 값을 각 탭의 표시 데이터로 변환합니다. 소지품은 `SessionState.inventory`에 유지하고 `ItemDefinition`과 `ItemUseEffect`는 공유 설정, `ItemStack`은 보유 상태를 담당합니다. [아이템·인벤토리 가이드](items-inventory-menu.md)를 참고하세요.

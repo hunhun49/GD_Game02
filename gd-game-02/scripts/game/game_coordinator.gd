@@ -1,6 +1,7 @@
 class_name GameCoordinator
 extends Node
 
+var _menu_presenter := CharacterMenuPresenter.new()
 var _world: InGame
 var _ui: GameUI
 var _dialogue: DialogueController
@@ -30,6 +31,8 @@ func configure(world: InGame, ui: GameUI, dialogue: DialogueController, state: S
 	_bind(_dialogue.effect_failed, _on_dialogue_effect_failed)
 	_world.configure(state, _prepare_zone_change)
 	_bind(_world.health_changed, _ui.show_health)
+	_bind(_world.ailments_changed, _ui.show_ailments)
+	_bind(_world.posture_changed, _ui.show_posture)
 	_bind(_world.stamina_changed, _ui.show_stamina)
 	_bind(_world.clock_changed, _ui.show_clock)
 	_bind(_world.needs_changed, _ui.show_needs)
@@ -40,6 +43,8 @@ func configure(world: InGame, ui: GameUI, dialogue: DialogueController, state: S
 	_bind(_world.interaction_prompt_changed, _ui.show_interaction)
 	_bind(_world.status_changed, _ui.show_status)
 	_bind(_world.dialogue_requested, _request_dialogue)
+	_menu_presenter.configure(_world, state, _ui.get_character_menu())
+	_bind(_ui.character_menu_requested, request_character_menu)
 	_bind(_ui.pause_requested, request_pause)
 	_bind(_ui.resume_requested, resume)
 	_world.start()
@@ -63,6 +68,15 @@ func request_pause() -> void:
 	_pause_clock_token = _clock.acquire_pause()
 	get_tree().paused = true
 	_ui.set_paused(true)
+
+func request_character_menu() -> void:
+	if get_tree().paused or _dialogue.is_busy() or not _world.can_pause():
+		return
+	_owns_pause = true
+	_pause_clock_token = _clock.acquire_pause()
+	get_tree().paused = true
+	_ui.get_character_menu().open()
+	_menu_presenter.refresh()
 
 func resume() -> void:
 	if not _owns_pause:
@@ -96,6 +110,7 @@ func _on_dialogue_effect_failed(id: StringName) -> void:
 func _exit_tree() -> void:
 	if not _configured:
 		return
+	_menu_presenter.dispose()
 	if is_instance_valid(_dialogue):
 		_dialogue.cancel()
 	if is_instance_valid(_world):

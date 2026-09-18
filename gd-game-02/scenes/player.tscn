@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/characters/character.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="2"]
@@ -9,6 +9,19 @@
 [ext_resource type="Script" path="res://scripts/combat/combat_component.gd" id="6"]
 [ext_resource type="Resource" path="res://data/combat/player_attack.tres" id="7"]
 [ext_resource type="Script" path="res://scripts/combat/combat_feedback.gd" id="8"]
+
+[ext_resource type="Script" path="res://scripts/combat/guard_component.gd" id="GuardScript"]
+[ext_resource type="Script" path="res://scripts/combat/posture_component.gd" id="PostureScript"]
+
+[ext_resource type="Script" path="res://scripts/combat/aim_component.gd" id="AimScript"]
+[ext_resource type="Script" path="res://scripts/combat/dodge_component.gd" id="DodgeScript"]
+[ext_resource type="Resource" path="res://data/skills/purple_clash.tres" id="PurpleSkill"]
+[ext_resource type="Script" path="res://scripts/skills/skill_component.gd" id="SkillScript"]
+
+[ext_resource type="Script" path="res://scripts/combat/attack_component.gd" id="AttackScript"]
+
+[ext_resource type="Script" path="res://scripts/combat/attack_hitbox.gd" id="HitboxScript"]
+[ext_resource type="PackedScene" path="res://scenes/combat/hurtbox.tscn" id="HurtboxScene"]
 
 [node name="Player" instance=ExtResource("1")]
 process_mode = 1
@@ -36,7 +49,36 @@ position_smoothing_speed = 6.0
 
 [node name="Combat" type="Node" parent="."]
 script = ExtResource("6")
-attack = ExtResource("7")
 
 [node name="CombatFeedback" type="Node2D" parent="."]
 script = ExtResource("8")
+
+[node name="Guard" type="Node" parent="."]
+script = ExtResource("GuardScript")
+
+[node name="Posture" type="Node" parent="."]
+script = ExtResource("PostureScript")
+break_duration = 0.65
+
+[node name="Aim" type="Node" parent="."]
+script = ExtResource("AimScript")
+
+[node name="Dodge" type="Node" parent="."]
+script = ExtResource("DodgeScript")
+
+[node name="Attack" type="Node" parent="Combat"]
+script = ExtResource("AttackScript")
+default_attack = ExtResource("7")
+
+[node name="Skills" type="Node" parent="Combat"]
+script = ExtResource("SkillScript")
+initial_skills = Array[Resource]([ExtResource("PurpleSkill")])
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("HitboxScript")
+
+[node name="Hurtbox" parent="." instance=ExtResource("HurtboxScene")]

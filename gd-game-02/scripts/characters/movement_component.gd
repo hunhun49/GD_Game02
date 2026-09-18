@@ -33,7 +33,7 @@ func step(actor: SchoolCharacter, requested: Vector2, delta: float) -> void:
 			direction = Vector2.from_angle(snappedf(raw.angle(), PI / 4.0)) * raw.length()
 	previous_input = raw
 	var settings := actor.definition
-	actor.velocity = actor.velocity.move_toward(direction * settings.run_speed, (settings.braking if direction.is_zero_approx() else settings.acceleration) * delta)
+	actor.velocity = actor.velocity.move_toward(direction * settings.run_speed * actor.movement_speed_multiplier(), (settings.braking if direction.is_zero_approx() else settings.acceleration) * delta)
 	actor.move_and_slide()
 	walk_phase = walk_phase + delta * 14.0 if actor.get_position_delta().length() > 0.1 else 0.0
 

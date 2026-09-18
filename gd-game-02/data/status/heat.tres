@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StatusEffectDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/status/status_effect_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/status/behaviors/status_behavior.gd" id="Behavior"]
+[ext_resource type="Script" path="res://scripts/status/behaviors/stat_modifier_status_behavior.gd" id="Script0"]
+
+[sub_resource type="Resource" id="Effect0"]
+script = ExtResource("Script0")
+stat = &"action_speed"
+factor = 0.75
+
+[resource]
+script = ExtResource("1")
+status_id = &"heat"
+display_name = "더움"
+tags = Array[StringName]([&"heat"])
+duration_seconds = 3.0
+presentation_key = &"heat"
+color = Color(1, 0.6, 0.4, 1)
+behaviors = Array[ExtResource("Behavior")]([SubResource("Effect0")])

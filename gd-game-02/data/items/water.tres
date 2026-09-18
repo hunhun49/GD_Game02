@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_definition.gd" id="Item"]
+[ext_resource type="Texture2D" path="res://assets/items/water.svg" id="Icon"]
+[ext_resource type="Script" path="res://scripts/items/effects/restore_needs_item_effect.gd" id="EffectScript"]
+[ext_resource type="Script" path="res://scripts/life/consumable_definition.gd" id="NutritionScript"]
+
+[sub_resource type="Resource" id="Nutrition"]
+script = ExtResource("NutritionScript")
+display_name = "생수"
+thirst_relief = 30.0
+
+[sub_resource type="Resource" id="Effect"]
+script = ExtResource("EffectScript")
+nutrition = SubResource("Nutrition")
+
+[resource]
+script = ExtResource("Item")
+item_id = &"water"
+display_name = "생수"
+description = "갈증을 30 낮춥니다.\n가방에 챙겨 둔 시원한 물 한 병."
+category = 0
+max_stack = 10
+icon = ExtResource("Icon")
+use_effect = SubResource("Effect")
